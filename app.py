@@ -63,15 +63,14 @@ changedf.index = changedf['report_date']
 #Data from today
 now = changedf.loc[str(date.today())]
 
-#Data from yesterday, just in case there's no data today
 yesterday = changedf.loc[str(date.today() - timedelta(days=1))]
-
 #Data from 14 days ago
 back14 = changedf.loc[str(date.today() - timedelta(days=14))]
 
 back15 = changedf.loc[str(date.today() - timedelta(days=15))]
 
 back28 = changedf.loc[str(date.today() - timedelta(days=28))]
+
 
 
 try: 
@@ -102,7 +101,6 @@ displaychange.columns = ['Local Conditions', '']
 displaychange
 
 table = ff.create_table(displaychange)
-table.show()
 
 vadf = covidpop.groupby('report_date').agg({'total_cases':'sum',
                                           'hospitalizations':'sum',
@@ -111,21 +109,20 @@ vadf = covidpop.groupby('report_date').agg({'total_cases':'sum',
 vadf = pd.melt(vadf, id_vars = 'report_date',
               value_vars = ['total_cases', 'hospitalizations', 'deaths'])
 vadf = vadf.rename({'variable':'outcome','value':'count'},axis=1)
-vadf
+
 
 figline = px.line(vadf, x='report_date', y='count', color='outcome', facet_row='outcome',
                  height=600, width=800)
 figline.update(layout=dict(title=dict(x=0.5)))
 figline.update_yaxes(matches=None)
-figline.show()
 
-covidpop
+
 
 today = covidpop[covidpop.report_date==covidpop.report_date.max()]
 today = today[['locality','fips','total_cases','population_estimate']]
 today['covid_rate']=today.total_cases/today.population_estimate
 
-today
+
 
 from urllib.request import urlopen
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
@@ -138,9 +135,8 @@ fig = px.choropleth(today, geojson=counties, locations='fips', color='covid_rate
                    labels={"covid_rate":"COVID cases per 100 people"})
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 fig.update_geos(fitbounds="locations", visible=False)
-fig.show()
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(
         [
             html.H1("Virginia COVID Dashboard"),
@@ -160,7 +156,6 @@ app.layout = html.Div(
     #what element in the app provides the input, what kind of input))
     )
 #immediately after the callback, write the function that maps inputs to outputs.
-
 
 def createlocaltable(lcl): 
     changedf = covidpop[covidpop.locality == lcl]
@@ -205,6 +200,5 @@ def createlocaltable(lcl):
     return table
     
 if __name__ == '__main__':
-    app.run_server(debug=True)
-
+    app.run_server(debug=True,port='8057')
 
