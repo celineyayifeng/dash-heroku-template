@@ -136,7 +136,10 @@ fig = px.choropleth(today, geojson=counties, locations='fips', color='covid_rate
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 fig.update_geos(fitbounds="locations", visible=False)
 
-app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+server = app.server
+
 app.layout = html.Div(
         [
             html.H1("Virginia COVID Dashboard"),
@@ -200,5 +203,5 @@ def createlocaltable(lcl):
     return table
     
 if __name__ == '__main__':
-    app.run_server(debug=True,port='8057')
+    app.run_server(debug=True,port='8057',host='0.0.0.0')
 
