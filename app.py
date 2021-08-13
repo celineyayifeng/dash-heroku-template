@@ -161,6 +161,7 @@ app.layout = html.Div(
     )
 #immediately after the callback, write the function that maps inputs to outputs.
 
+
 def createlocaltable(lcl): 
     changedf = covidpop[covidpop.locality == lcl]
     changedf['report_date'] = pd.to_datetime(changedf['report_date'])
@@ -168,19 +169,24 @@ def createlocaltable(lcl):
 
     #Data from today
     now = changedf.loc[str(date.today())]
+
+    yesterday = changedf.loc[str(date.today() - timedelta(days=1))]
     #Data from 14 days ago
     back14 = changedf.loc[str(date.today() - timedelta(days=14))]
 
     back15 = changedf.loc[str(date.today() - timedelta(days=15))]
 
     back28 = changedf.loc[str(date.today() - timedelta(days=28))]
-    newcases = now.total_cases[0] - back14.total_cases[0]
+    try: 
+        newcases = now.total_cases[0] - back14.total_cases[0]
+    except:
+        newcases = yesterday.total_cases[0] - back14.total_cases[0]    
     prevcases = back14.total_cases[0] - back28.total_cases[0]
     changecases = newcases - prevcases
     percentchange = round(100*(changecases/prevcases),2)
 
-    values = [now.locality[0],
-             now.vdh_health_district[0],
+    values = [yesterday.locality[0],
+             yesterday.vdh_health_district[0],
              newcases,
              prevcases,
              changecases,
